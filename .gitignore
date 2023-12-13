@@ -1,3 +1,6 @@
 .venv
 result/*
 result_archive/*
+!result/.gitkeep
+!result_archive/.gitkeep
+
