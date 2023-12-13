@@ -1,0 +1,9 @@
+SELECT date(bill_billing_period_start_date) as bill_date,
+line_item_product_code, line_item_line_item_description, bill_bill_type, line_item_usage_type, line_item_operation, line_item_resource_id, product_region, product_usagetype, pricing_unit,
+round(sum(line_item_usage_amount)) as usage_amount, round(sum(line_item_unblended_cost)) as usage_cost
+from customer_all
+WHERE 
+Date(bill_billing_period_start_date) BETWEEN DATE_TRUNC('month', current_date) - interval '6' month AND DATE_TRUNC('month', current_date) - interval '1' day
+AND line_item_line_item_description LIKE '%data transfer%'
+AND line_item_product_code = 'AmazonMSK'
+group by date(bill_billing_period_start_date), line_item_product_code, line_item_line_item_description, bill_bill_type, line_item_usage_type, line_item_operation, line_item_resource_id, product_region, product_usagetype, pricing_unit

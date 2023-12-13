@@ -1,0 +1,24 @@
+SELECT product_product_name as "Service",
+line_item_operation as "Operation",
+line_item_usage_type as "UsageType",
+'' as "IntentionallyLeftBlank",
+date_format(line_item_usage_start_date, '%m/%d/%y %H:%i:%S') as "StartTime",
+date_format(line_item_usage_end_date, '%m/%d/%y %H:%i:%S') as "EndTime",
+sum(line_item_usage_amount) as "UsageValue",
+sum(line_item_unblended_cost) as "Cost",
+line_item_line_item_description
+FROM "customer_all"
+WHERE product_product_name = 'Amazon DynamoDB'
+AND date(line_item_usage_start_date) between DATE_ADD('day', -63, current_date) and DATE_ADD('day', -3, current_date)
+GROUP BY
+product_product_name,
+line_item_operation,
+line_item_usage_type,
+line_item_usage_start_date,
+line_item_usage_end_date,
+line_item_line_item_description
+ORDER BY  
+line_item_operation,
+line_item_usage_type,
+line_item_usage_start_date ASC
+;

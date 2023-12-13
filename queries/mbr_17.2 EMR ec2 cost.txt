@@ -1,0 +1,72 @@
+select
+date(bill_billing_period_start_date) as bill_date,
+Date(line_item_usage_start_date) as start_date,
+line_item_product_code,
+line_item_resource_id,
+line_item_operation,
+line_item_usage_type,
+line_item_line_item_type,
+round(sum(line_item_usage_amount)) as amount, round(sum(line_item_unblended_cost)) as cost
+from customer_all
+where
+Date(line_item_usage_start_date) BETWEEN DATE_TRUNC('month', current_date) - interval '6' month AND DATE_TRUNC('month', current_date) - interval '1' day
+AND line_item_product_code in ('AmazonEC2')
+AND line_item_resource_id in (
+'i-07af4ab26710dea23',
+'i-069fe545d303961a9',
+'i-07ed2109084ed6599',
+'i-03a4f1e29a43bfcee',
+'i-0504ee581e8233a5f',
+'i-0f39f33d87fb6f944',
+'i-0565f57a3254f815e',
+'i-06bc18f0f07b0f6cf',
+'i-02957ac0c99b3ceb7',
+'i-0c1825b0444976c0f',
+'i-0cbbc62c7e1f4a64f',
+'i-035d5a6cf42b79703',
+'i-0012c9c1dc8a9d750',
+'i-0702ca41be36e2c0c',
+'i-0100735b1f4eeee33',
+'i-09ff982800e8913c1',
+'i-0a320304dcb926ce7',
+'i-0b31ff39a4dcdc8a4',
+'i-0299a7e00b9d58423',
+'i-0b3e3db22ff09d16f',
+'i-01d446f6296d82d59',
+'i-0fe7f510249a94666',
+'i-0a62f0c0c687b725a',
+'i-082f051972effb6c3',
+'i-012783a74fd1396c8',
+'i-048d92353fe7e8303',
+'i-0c0d01aa0d1c3bc63',
+'i-094ff366dca9afe37',
+'i-083537b97f2038a00',
+'i-034205e67cf7304db',
+'i-0fe7f510249a94666',
+'i-0a62f0c0c687b725a',
+'i-082f051972effb6c3',
+'i-012783a74fd1396c8',
+'i-048d92353fe7e8303',
+'i-0c0d01aa0d1c3bc63',
+'i-094ff366dca9afe37',
+'i-083537b97f2038a00',
+'i-034205e67cf7304db',
+'i-041d0f403a4af0d62',
+'i-0c4164f9fdfc0770e',
+'i-0d1d40e7684871e79',
+'i-0d464fca247f2045c',
+'i-05dccdb4e3b568c20',
+'i-0d33569e4a965d06c'
+)
+AND line_item_line_item_type NOT IN ('Tax','Credit','Refund','EdpDiscount','Fee','RIFee')
+AND line_item_unblended_cost > 0
+AND line_item_operation = 'RunInstances'
+group by
+bill_billing_period_start_date,
+line_item_resource_id,
+line_item_usage_start_date,
+line_item_product_code,
+line_item_operation,
+line_item_usage_type,
+line_item_line_item_type
+order by line_item_usage_start_date DESC

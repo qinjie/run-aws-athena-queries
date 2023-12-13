@@ -1,0 +1,18 @@
+select
+Date(line_item_usage_start_date) as usage_date,
+line_item_product_code,
+-- line_item_resource_id,
+round(sum(line_item_unblended_cost)) as cost
+from customer_all
+where
+date(line_item_usage_start_date) between DATE_ADD('day', -63, current_date) and DATE_ADD('day', -3, current_date)
+-- AND line_item_product_code in ('AmazonElastiCache', 'AmazonES', 'AmazonRedshift', 'AWSQueueService', 'AmazonMSK', 'AmazonKinesis', 'AmazonKinesisAnalytics', 'AmazonKinesisFirehose')
+AND line_item_line_item_type NOT IN ('Tax','Credit','Refund','EdpDiscount','Fee','RIFee')
+AND line_item_product_code not in ('AWSSupportEnterprise')
+AND line_item_unblended_cost > 0
+AND line_item_line_item_type = 'Usage'
+group by
+Date(line_item_usage_start_date),
+line_item_product_code
+-- line_item_resource_id
+order by date(line_item_usage_start_date) DESC

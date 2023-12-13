@@ -1,0 +1,21 @@
+select
+date(bill_billing_period_start_date) as month,
+line_item_product_code,
+line_item_resource_id,
+line_item_usage_type,
+line_item_line_item_type,
+round(sum(line_item_unblended_cost)) as cost
+from customer_all
+WHERE
+date(line_item_usage_start_date) BETWEEN DATE_TRUNC('month', current_date) - interval '3' month and DATE_TRUNC('month', current_date) - interval '1' day
+AND line_item_product_code in ('AmazonElastiCache', 'AmazonES', 'AmazonRedshift', 'AWSQueueService', 'AmazonMSK', 'AmazonKinesis', 'AmazonKinesisAnalytics', 'AmazonKinesisFirehose')
+AND line_item_line_item_type NOT IN ('Tax','Credit','Refund','EdpDiscount','Fee','RIFee')
+AND line_item_unblended_cost > 0
+AND line_item_line_item_type = 'Usage'
+group by
+bill_billing_period_start_date,
+line_item_product_code,
+line_item_resource_id,
+line_item_usage_type,
+line_item_line_item_type
+order by bill_billing_period_start_date DESC

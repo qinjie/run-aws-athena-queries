@@ -1,0 +1,16 @@
+SELECT
+date(bill_billing_period_start_date) as bill_date,
+line_item_product_code, line_item_line_item_description, bill_bill_type, line_item_usage_type, line_item_operation, line_item_resource_id, product_region, product_usagetype, pricing_unit,
+-- line_item_resource_id AS distribution,
+(case when line_item_usage_type like '%DataTransfer%' then product_from_location else product_location end) as ProductLocation,
+(SUM (case when line_item_usage_type like '%DataTransfer%' then cast(line_item_usage_amount AS decimal(20,2)) ELSE 0 END ))/1024 as "DataTransfer (TB)",
+SUM (case when line_item_usage_type like '%DataTransfer%' then cast(line_item_net_unblended_cost AS decimal(8,2)) ELSE 0 END ) as "DataTransfer ($)",
+SUM (case when line_item_usage_type like '%Requests%' then cast(line_item_usage_amount AS decimal(20,2)) ELSE 0 END ) as Requests,
+SUM (case when line_item_usage_type like '%Requests%' then cast(line_item_net_unblended_cost AS decimal(8,2)) ELSE 0 END ) as "Requests ($)",
+(SUM (case when line_item_usage_type like '%DataTransfer%' then cast(line_item_net_unblended_cost AS decimal(8,2)) ELSE 0 END ) + SUM (case when line_item_usage_type like '%Requests%' then cast(line_item_net_unblended_cost AS decimal(8,2)) ELSE 0 END ) ) as "Total Cost ($)"
+FROM customer_all
+WHERE product_product_name = 'Amazon CloudFront'
+AND line_item_line_item_type NOT IN ('Tax','Credit','Refund','EdpDiscount','Fee','RIFee')
+AND date(bill_billing_period_start_date) between date_trunc('month', current_date) - interval '5' month and date_trunc('month', current_date) - interval '1' day
+GROUP BY 1, 2,3,4,5,6,7,8,9,10,11
+ORDER by date(bill_billing_period_start_date), ProductLocation, "DataTransfer ($)";

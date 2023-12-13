@@ -1,0 +1,30 @@
+SELECT date(bill_billing_period_start_date) as month,
+line_item_product_code,
+--   line_item_line_item_description,
+--   product_from_location,
+round(sum(line_item_unblended_cost), 2) AS cost,
+round(sum(line_item_usage_amount), 3) AS usage_amount,
+--   line_item_usage_type,
+line_item_operation,
+line_item_resource_id,
+line_item_line_item_description,
+bill_bill_type,
+line_item_usage_type,
+product_region, product_usagetype, pricing_unit
+FROM customer_all
+WHERE date(bill_billing_period_start_date) BETWEEN DATE_TRUNC('month', current_date) - interval '6' month AND DATE_TRUNC('month', current_date) - interval '1' day
+AND product_product_name IN ('AWS WAF','AWS Shield')
+GROUP BY date(bill_billing_period_start_date),
+bill_billing_period_end_date,
+product_product_name,
+--  line_item_line_item_description,
+--  product_from_location,
+line_item_product_code,
+-- line_item_usage_type,
+line_item_operation,
+line_item_resource_id,
+line_item_line_item_description, bill_bill_type,
+line_item_usage_type,
+product_region, product_usagetype, pricing_unit
+HAVING round(sum(line_item_unblended_cost), 2) > 0
+ORDER BY product_product_name

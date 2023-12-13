@@ -1,0 +1,15 @@
+SELECT
+line_item_product_code as product_code,
+date(bill_billing_period_start_date) as month,
+round(sum(line_item_unblended_cost)) as Cost
+FROM customer_all
+WHERE
+Date(line_item_usage_start_date) BETWEEN DATE_TRUNC('month', current_date) - interval '3' month AND DATE_TRUNC('month', current_date) - interval '1' day
+AND line_item_product_code not in ('AWSSupportEnterprise')
+AND line_item_line_item_type = 'Usage'
+AND line_item_line_item_type NOT IN ('Credit','Refund','EdpDiscount')
+-- AND line_item_unblended_cost > 0
+group by
+date(bill_billing_period_start_date),
+line_item_product_code
+order by date(bill_billing_period_start_date) DESC

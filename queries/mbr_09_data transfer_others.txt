@@ -1,0 +1,23 @@
+SELECT date(bill_billing_period_start_date) as month,
+line_item_product_code,
+line_item_line_item_description,
+product_from_location,
+round(sum(line_item_unblended_cost), 2) AS cost,
+round(sum(line_item_usage_amount), 3) AS usage_amount,
+line_item_usage_type,
+line_item_operation
+FROM customer_all
+WHERE date(bill_billing_period_start_date) BETWEEN DATE_TRUNC('month', current_date) - interval '6' month AND DATE_TRUNC('month', current_date) - interval '1' day
+AND line_item_line_item_type NOT IN ('Tax','Credit','Refund','EdpDiscount','Fee','RIFee')
+AND line_item_line_item_description LIKE '%data transfer%'
+AND (product_product_name NOT IN ('Amazon CloudFront', 'AWS Direct Connect'))
+GROUP BY date(bill_billing_period_start_date),
+bill_billing_period_end_date,
+product_product_name,
+line_item_line_item_description,
+product_from_location,
+line_item_product_code,
+line_item_usage_type,
+line_item_operation
+HAVING round(sum(line_item_unblended_cost), 2) > 0
+ORDER BY product_product_name
